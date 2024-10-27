@@ -8,7 +8,7 @@ import { desktopCapturer, screen } from 'electron';
 import { anthropic } from './anthropic';
 import { AppState, NextAction } from './types';
 import { extractAction } from './extractAction';
-import { hideWindowBlock, showWindow } from '../window';
+import { hideWindowBlock } from '../window';
 
 const MAX_STEPS = 50;
 
@@ -103,8 +103,8 @@ const promptForAction = async (
   });
 
   const message = await anthropic.beta.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 1024,
+    model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    max_tokens: 2048,
     tools: [
       {
         type: 'computer_20241022',
@@ -157,6 +157,8 @@ export const performAction = async (action: NextAction) => {
       const position = await mouse.getPosition();
       const aiPosition = mapToAiSpace(position.x, position.y);
       // TODO: actually return the position
+      // eslint-disable-next-line no-console
+      console.log(`AiPosition: ${aiPosition}`);
       break;
     case 'left_click':
       await mouse.leftClick();
@@ -252,7 +254,9 @@ export const runAgent = async (
 
       hideWindowBlock(() => performAction(action));
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => {
+        setTimeout(resolve, 500);
+      });
       if (!getState().running) {
         break;
       }
